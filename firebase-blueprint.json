@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "Represents a student or administrator in the system.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "role": { "type": "string", "enum": ["student", "admin"], "description": "User role" },
+        "studentId": { "type": ["string", "null"], "description": "Unique student identifier (for students)" },
+        "major": { "type": ["string", "null"], "description": "Major / Program (for students)" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "courses": {
+      "title": "Course",
+      "description": "Represents an academic course offered by the institution.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Course ID" },
+        "code": { "type": "string", "description": "Course code (e.g., CS101)" },
+        "title": { "type": "string", "description": "Course title" },
+        "description": { "type": "string", "description": "Course description" },
+        "capacity": { "type": "number", "description": "Maximum number of students" },
+        "enrolledCount": { "type": "number", "description": "Current number of enrolled students" },
+        "prerequisites": { "type": "array", "items": { "type": "string" }, "description": "List of prerequisite course codes" }
+      },
+      "required": ["code", "title", "capacity"]
+    },
+    "enrollments": {
+      "title": "Enrollment",
+      "description": "Represents a student's request to enroll in a course.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Enrollment ID" },
+        "studentUid": { "type": "string", "description": "UID of the student" },
+        "courseId": { "type": "string", "description": "ID of the course" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "Enrollment status" },
+        "requestedAt": { "type": "string", "format": "date-time", "description": "Timestamp of the request" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp of the last status update" }
+      },
+      "required": ["studentUid", "courseId", "status"]
+    },
+    "notifications": {
+      "title": "Notification",
+      "description": "System notifications for users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Notification ID" },
+        "recipientUid": { "type": "string", "description": "UID of the recipient" },
+        "message": { "type": "string", "description": "Notification message" },
+        "type": { "type": "string", "enum": ["enrollment_update", "announcement"], "description": "Type of notification" },
+        "read": { "type": "boolean", "description": "Whether the notification has been read" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["recipientUid", "message", "type", "read"]
+    },
+    "attendance": {
+      "title": "Attendance",
+      "description": "Daily attendance record for a course.",
+      "type": "object",
+      "properties": {
+        "courseId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "presentStudents": { "type": "array", "items": { "type": "string" } },
+        "isOpen": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["courseId", "date", "presentStudents", "isOpen"]
+    },
+    "course_feedback": {
+      "title": "Course Feedback",
+      "description": "Student feedback for a course.",
+      "type": "object",
+      "properties": {
+        "courseId": { "type": "string" },
+        "studentUid": { "type": "string" },
+        "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["courseId", "studentUid", "rating"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "users", "description": "Collection of user profiles" },
+    "courses": { "schema": "courses", "description": "Collection of available courses" },
+    "enrollments": { "schema": "enrollments", "description": "Collection of course enrollment requests" },
+    "notifications": { "schema": "notifications", "description": "Collection of user notifications" },
+    "attendance": { "schema": "attendance", "description": "Collection of daily attendance records" },
+    "course_feedback": { "schema": "course_feedback", "description": "Collection of student feedback" }
+  }
+}

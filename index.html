@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      (function() {
+        // 1. Robust Console Proxy
+        const metamaskRegex = /metamask|failed to connect to metamask|ethereum/i;
+        
+        const createHandler = (original) => {
+          return (...args) => {
+            const shouldHide = args.some(arg => {
+              if (typeof arg === 'string') return metamaskRegex.test(arg);
+              if (arg && typeof arg === 'object') {
+                try {
+                  const str = JSON.stringify(arg).toLowerCase();
+                  return str.includes('metamask') || str.includes('ethereum');
+                } catch (e) { return false; }
+              }
+              return false;
+            });
+            if (!shouldHide && original) {
+              return original.apply(console, args);
+            }
+          };
+        };
+
+        // Override all common console methods
+        ['log', 'warn', 'error', 'info', 'debug', 'trace'].forEach(method => {
+          console[method] = createHandler(console[method]);
+        });
+
+        // 2. Fake Ethereum Provider (Satisfies the extension so it stops complaining)
+        const noop = () => {};
+        const fakeProvider = {
+          isMetaMask: true,
+          request: () => Promise.resolve([]),
+          on: noop,
+          removeListener: noop,
+          enable: () => Promise.resolve([]),
+          send: (payload, cb) => cb ? cb(null, { result: [] }) : Promise.resolve({ result: [] }),
+          sendAsync: (payload, cb) => cb(null, { result: [] }),
+        };
+
+        try {
+          Object.defineProperty(window, 'ethereum', {
+            value: fakeProvider,
+            writable: false,
+            configurable: false
+          });
+        } catch (e) {
+          window.ethereum = fakeProvider;
+        }
+        
+        // 3. Global Error & Rejection Catching
+        window.addEventListener('error', (event) => {
+          if (event.message && metamaskRegex.test(event.message)) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', (event) => {
+          if (event.reason && (
+            (event.reason.message && metamaskRegex.test(event.reason.message)) ||
+            (typeof event.reason === 'string' && metamaskRegex.test(event.reason))
+          )) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduEnroll - Student Registration</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
