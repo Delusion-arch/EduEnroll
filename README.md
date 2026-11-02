@@ -43,13 +43,22 @@ You need Node.js 20+ and a Firebase project with Authentication and Firestore tu
 git clone https://github.com/Delusion-arch/EduEnroll.git
 cd EduEnroll
 npm install
-cp .env.example .env.local   # fill in your Firebase web app values
-npm run dev                  # http://localhost:3000
+cp .env.example .env   # fill in your Firebase web app values
+npm run dev            # http://localhost:3000
 ```
 
 Deploy the rules in `firestore.rules` to your Firebase project so role checks work.
 
+## Run it with Docker
+
+```bash
+cp .env.example .env   # same Firebase values as above
+docker compose up --build
+```
+
+Then open http://localhost:8080. The image builds the app with Vite and serves the static files with nginx. Firebase values are passed in as build arguments because Vite bakes them into the bundle at build time.
+
 ## Notes
 
 - Access control lives in `firestore.rules`, not only in the UI. Students can only read and write their own records.
-- Next on my list: automated tests, a CI pipeline, and a Docker setup for local development.
+- Next on my list: automated tests and a CI pipeline that builds the Docker image on every push.
