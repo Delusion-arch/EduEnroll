@@ -1,20 +1,55 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# EduEnroll
 
-# Run and deploy your AI Studio app
+A student registration and course enrollment web app with separate student and admin sides. Students sign up, browse courses and request enrollment. Admins review requests, track attendance and see reports.
 
-This contains everything you need to run your app locally.
+I built it as a second take on the student registration problem, this time with a serverless backend (Firebase) instead of my own Express server. The Express + SQLite version is in [outr-student-portal](https://github.com/Delusion-arch/outr-student-portal).
 
-View your app in AI Studio: https://ai.studio/apps/8e1ac5ae-31e0-4b18-9f5c-6f1acaad8e4f
+## What it does
 
-## Run Locally
+**Students**
+- Create a profile and complete registration
+- Browse available courses and request enrollment
+- Track the status of each request (pending / approved)
+- See their own attendance history
 
-**Prerequisites:**  Node.js
+**Admins**
+- Approve or reject enrollment requests
+- Add and manage courses, with capacity limits
+- Take daily attendance per course
+- Dashboard with totals, attendance performance and course feedback charts
 
+## Tech stack
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- React 19 + TypeScript, built with Vite
+- Tailwind CSS 4 and shadcn/ui components
+- Firebase Authentication and Cloud Firestore
+- Recharts for the dashboard charts
+
+## Project layout
+
+```
+src/
+  components/   Register, StudentDashboard, AdminDashboard, Profile, ui/
+  lib/          Firebase setup and helpers
+firestore.rules Firestore security rules (role-based access)
+docs/           Data model (users, courses, enrollments, attendance, feedback)
+```
+
+## Run it locally
+
+You need Node.js 20+ and a Firebase project with Authentication and Firestore turned on.
+
+```bash
+git clone https://github.com/Delusion-arch/EduEnroll.git
+cd EduEnroll
+npm install
+cp .env.example .env.local   # fill in your Firebase web app values
+npm run dev                  # http://localhost:3000
+```
+
+Deploy the rules in `firestore.rules` to your Firebase project so role checks work.
+
+## Notes
+
+- Access control lives in `firestore.rules`, not only in the UI. Students can only read and write their own records.
+- Next on my list: automated tests, a CI pipeline, and a Docker setup for local development.
