@@ -62,3 +62,7 @@ Then open http://localhost:8080. The image builds the app with Vite and serves t
 
 - Access control lives in `firestore.rules`, not only in the UI. Students can only read and write their own records.
 - Next on my list: automated tests and a CI pipeline that builds the Docker image on every push.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
