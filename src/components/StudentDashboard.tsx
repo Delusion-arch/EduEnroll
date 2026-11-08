@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { BookOpen, CheckCircle2, Clock, XCircle, Bell, User as UserIcon, Search } from 'lucide-react';
 import { handleFirestoreError, OperationType } from '@/lib/firestore-utils';
+import { getEnrollmentBlocker } from '@/lib/enrollment';
 
 interface Props {
   activeTab: string;
@@ -69,36 +70,10 @@ const StudentDashboard: React.FC<Props> = ({ activeTab }) => {
   const handleEnroll = async (course: Course) => {
     if (!profile) return;
 
-    // Check if already enrolled or pending
-    const existing = enrollments.find(e => e.courseId === course.id);
-    if (existing) {
-      toast.error(`You already have a ${existing.status} enrollment for this course.`);
+    const blocker = getEnrollmentBlocker(course, enrollments, courses);
+    if (blocker) {
+      toast.error(blocker);
       return;
-    }
-
-    // Check capacity
-    if (course.enrolledCount >= course.capacity) {
-      toast.error("Course is full.");
-      return;
-    }
-
-    // Check prerequisites
-    if (course.prerequisites && course.prerequisites.length > 0) {
-      const approvedEnrollments = enrollments.filter(e => e.status === 'approved');
-      const approvedCourseIds = approvedEnrollments.map(e => e.courseId);
-      
-      // We need to fetch course codes for approved enrollments to check prerequisites
-      // For simplicity in this demo, we'll assume prerequisites are course codes
-      // and we check if the student has approved enrollments for those codes
-      const approvedCourseCodes = courses
-        .filter(c => approvedCourseIds.includes(c.id))
-        .map(c => c.code);
-
-      const missingPrereqs = course.prerequisites.filter(p => !approvedCourseCodes.includes(p));
-      if (missingPrereqs.length > 0) {
-        toast.error(`Missing prerequisites: ${missingPrereqs.join(', ')}`);
-        return;
-      }
     }
 
     try {

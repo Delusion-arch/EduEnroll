@@ -61,7 +61,8 @@ Then open http://localhost:8080. The image builds the app with Vite and serves t
 ## Notes
 
 - Access control lives in `firestore.rules`, not only in the UI. Students can only read and write their own records.
-- Next on my list: automated tests and a CI pipeline that builds the Docker image on every push.
+- The enrollment rules (duplicate request, full course, prerequisites) live in `src/lib/enrollment.ts` with unit tests: `npm test`.
+- CI type-checks, tests and builds on every push, and builds the Docker image.
 
 ## License
 
